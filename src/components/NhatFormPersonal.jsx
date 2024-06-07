@@ -1,26 +1,44 @@
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
-
+import BasicButton from "./BasicButton";
 function NhatFormPersional(){
     const [ users, setUsers ] = React.useState([]);
+    const [page, setPage] = React.useState(1);
+    const [limit, setLimit] = React.useState(5);
     const {
         register,
         handleSubmit,
-        watch,
         formState: { errors }
     } = useForm();
 
-    function onSubmit(e){
-        e.preventDefault();
-    }
     function onDelete(id){
       setUsers(prevState => {
         const newUser = prevState.filter(user => user.id !== id)
         return newUser
 
       })
-
     }
+    function handleNextPage() {
+      setPage(prevState => prevState + 1)
+    }
+  
+    function handPrevPage() {
+      setPage(prevState => prevState - 1)
+    }
+    React.useEffect(() => {
+      async function fetchUser() {
+        const res = await fetch(`https://jsonplaceholder.typicode.com/users?_limit=${limit}&_page=${page}`);
+        const data = await res.json();
+        setUsers(data);
+      }
+      fetchUser();
+    }, [page, limit])
+
+    console.log('----------------------------: ')
+    console.log('EffectHook: ', {
+    users, page
+    })
+   
     return (
         <>
         <div className="mt-10 sm:mt-0">
@@ -30,47 +48,47 @@ function NhatFormPersional(){
                 onSubmit={handleSubmit((data)=>{
             //alert(JSON.stringify(data));
             console.log(data);
-          const { first_name, last_name, email, country} = data;
+          const { id, name, username, email, country} = data;
             const user = {
-                id: Date.now(),
-                first_name,
-                last_name,
+                id,
+                name,
+                username,
                 email,
                 country
             }
             setUsers(prevState => [...prevState, user])
          })}>
         <div className="shadow overflow-hidden sm:rounded-md ">
-          <div className="px-4 py-5 bg-sky-100	 sm:p-6">
+          <div className="px-4 py-5 bg-gray-200	 sm:p-6">
             <div className="grid grid-cols-6 gap-6">
               <div className="col-span-6 sm:col-span-3">
-                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">First name</label>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">First name</label>
                 <input 
                     type="text" 
-                    name="first_name" 
-                    id="first_name"  
+                    name="name" 
+                    id="name"  
                     className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                    {...register("first_name", {
+                    {...register("name", {
                       required: true,
                       minLength: 6
                     })}
                 />
-                {errors?.first_name && <span>First name required</span>}
+                {errors?.first_name && <span>Name required</span>}
               </div>
 
               <div className="col-span-6 sm:col-span-3">
-                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">Last name</label>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700">Last name</label>
                 <input 
                     type="text" 
-                    name="last_name" 
-                    id="last_name" 
+                    name="username" 
+                    id="username" 
                     className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                    {...register("last_name", {
+                    {...register("username", {
                       required: true,
                       minLength: 3
                     })}
                       />
-                    {errors?.last_name && <span>Last name required</span>}
+                    {errors?.username && <span>User name required</span>}
 
               </div>
 
@@ -88,7 +106,7 @@ function NhatFormPersional(){
                         message: "Email required"
                       },
                       pattern: {
-                        value: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                        value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
                         message: "Email isn't correct format @abc.com"
                       }
                     }
@@ -101,7 +119,7 @@ function NhatFormPersional(){
                 <select 
                     id="country" 
                     name="country"  
-                    className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full py-2 px-3 border border-gray-200 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     {...register("country")}>
                   <option value="US">United States</option>
                   <option value="Ca">Canada</option>
@@ -128,7 +146,7 @@ function NhatFormPersional(){
 
 <div className="relative overflow-x-auto">
     <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-2">
-        <thead className="text-xs text-gray-700 uppercase bg-sky-100 dark:bg-gray-5 dark:text-gray-400">
+        <thead className="text-xs text-gray-700 uppercase bg- dark:bg-gray-5 dark:text-gray-400">
             <tr>
                 <th scope="col" className="px-6 py-3">
                    FIRST NAME
@@ -140,28 +158,28 @@ function NhatFormPersional(){
                     EMAIL
                 </th>
                 <th scope="col" className="px-6 py-3">
-                    COUNTRY
+                    CITY
                 </th>
                 <th scope="col" className="px-6 py-3">
                     BUTTON
                 </th>
             </tr>
         </thead>
-        <tbody>
-            {users?.length >0 ? users.map(user => {
+        <tbody>          
+        {users.map(user => {
                 return (
-                    <tr key={user.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <tr key={user.id} className="bg-gray-300 border-b dark:bg-gray-800 dark:border-gray-700">
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {user.first_name}
+                                        {user.name}
                                     </th>
                                     <td className="px-6 py-4">
-                                        {user.last_name}
+                                        {user.username}
                                     </td>
                                     <td className="px-6 py-4">
                                         {user.email}
                                     </td>
                                     <td className="px-6 py-4">
-                                        {user.country}
+                                        {user.address.city}
                                     </td>
                                     <td className="px-6 py-4">
                                       <button 
@@ -174,20 +192,45 @@ function NhatFormPersional(){
                                     </td>
                                 </tr>
                 )
-            }) : (<tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-            <th scope="row" colSpan={4} className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white text-center">
-                No Data
-            </th>
-            </tr>
-
-            )
+            })
+             
         }
-            
-           
+                  
+                    
         </tbody>
     </table>
-</div>
+</div>            
+    
+    <div className="grid  grid-cols-2">
+              <div className=" justify-items-center my-2 ml-50 ">
+              
+                    <BasicButton 
+                    text="Previous"
+                    onClick={handPrevPage}
+                    />
 
+                    <p className=" inline w-14">
+                      Page: {page} { ' ' }            
+                    </p>
+                    <BasicButton
+                    text="Next"
+                    onClick={handleNextPage}
+                  /> 
+              </div>
+
+              <div className=" col-end-4">
+                <p className=" inline my-2">
+                  Limit: {limit}
+                </p>
+                <BasicButton 
+                    className=" text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-1 mx-2"
+                    text="Update limit 10"
+                    onClick={() => setLimit(10)}
+                /> 
+              </div>      
+                
+</div>
+                  
         </>
 
     )
